@@ -9,6 +9,11 @@
 #include <string.h>
 #include <sml/sml_file.h>
 
+#include <chrono>
+#include <ArduinoJson.h>
+#include <iostream>
+#include <string>
+
 #define MQTT_RECONNECT_DELAY 5
 #define MQTT_LWT_TOPIC "LWT"
 #define MQTT_LWT_RETAIN true
@@ -18,13 +23,19 @@
 
 using namespace std;
 
+uint64_t timeSinceEpochMillisec()
+{
+  using namespace std::chrono;
+  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
 struct MqttConfig
 {
-  char server[128] = "mosquitto";
+  char server[128] = "192.168.178.X";
   char port[8] = "1883";
   char username[128] = "";
   char password[128] = "";
-  char topic[128] = "iot/smartmeter/";
+  char topic[128] = "stromzaehler/";
 };
 
 class MqttPublisher
@@ -68,6 +79,8 @@ public:
 
   void publish(Sensor *sensor, sml_file *file)
   {
+    DynamicJsonDocument j(2048);
+    j["timestamp"] = timeSinceEpochMillisec();
 
     for (int i = 0; i < file->messages_len; i++)
     {
@@ -87,10 +100,9 @@ public:
           char obisIdentifier[32];
           char buffer[255];
 
-          sprintf(obisIdentifier, "%d-%d:%d.%d.%d/%d",
-                  entry->obj_name->str[0], entry->obj_name->str[1],
+          sprintf(obisIdentifier, "%d.%d.%d",
                   entry->obj_name->str[2], entry->obj_name->str[3],
-                  entry->obj_name->str[4], entry->obj_name->str[5]);
+                  entry->obj_name->str[4]);
 
           String entryTopic = baseTopic + "sensor/" + (sensor->config->name) + "/obis/" + obisIdentifier + "/";
 
@@ -104,7 +116,9 @@ public:
               prec = 0;
             value = value * pow(10, scaler);
             sprintf(buffer, "%.*f", prec, value);
-            publish(entryTopic + "value", buffer);
+            double temp = std::atof(buffer);
+            j[obisIdentifier] = temp;
+            // publish(entryTopic + "value", buffer);
           }
           else if (!sensor->config->numeric_only)
           {
@@ -123,6 +137,10 @@ public:
         }
       }
     }
+    // serializeJson(j, Serial);
+    char jout[2048];
+    serializeJson(j, jout);
+    publish(baseTopic, jout);
   }
 
   void connect()

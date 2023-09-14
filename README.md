@@ -1,5 +1,9 @@
 # SMLReader
+The following changes were made to the original project:
+* Measured values are sent in one message instead of multiple individual
+* Implementation of a timestamp (epoch)
 
+---
 An ESP8266 based smart meter (SML) to MQTT gateway 
 
 ## About
