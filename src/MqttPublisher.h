@@ -9,7 +9,11 @@
 #include <string.h>
 #include <sml/sml_file.h>
 
-#include <chrono>
+#include <NTPClient.h>
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+
+// #include <chrono>
 #include <ArduinoJson.h>
 #include <iostream>
 #include <string>
@@ -23,10 +27,13 @@
 
 using namespace std;
 
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
+
 uint64_t timeSinceEpochMillisec()
 {
-  using namespace std::chrono;
-  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+  timeClient.update();
+  return timeClient.getEpochTime();
 }
 
 struct MqttConfig
@@ -150,6 +157,7 @@ public:
       DEBUG(F("MQTT: Already connected. Aborting connection request."));
       return;
     }
+    timeClient.begin();
     DEBUG(F("MQTT: Connecting to broker..."));
     client.connect();
   }
