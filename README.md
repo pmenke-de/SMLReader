@@ -2,6 +2,7 @@
 The following changes were made to the original project:
 * Measured values are sent in one message instead of multiple individual
 * Implementation of a timestamp (epoch)
+* Last published message is exposed on /msg endpoint
 
 ---
 An ESP8266 based smart meter (SML) to MQTT gateway 
