@@ -48,6 +48,8 @@ struct MqttConfig
 class MqttPublisher
 {
 public:
+  char jout[2048];
+
   void setup(MqttConfig _config)
   {
     config = _config;
@@ -144,8 +146,7 @@ public:
         }
       }
     }
-    // serializeJson(j, Serial);
-    char jout[2048];
+    // char jout[2048];
     serializeJson(j, jout);
     publish(baseTopic, jout);
   }

@@ -82,10 +82,8 @@ void setup()
 	iotWebConf.setConfigSavedCallback(&configSaved);
 	iotWebConf.setWifiConnectionCallback(&wifiConnected);
 
-
-	WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected& event) {
-      publisher.disconnect();
-    });
+	WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected &event)
+								   { publisher.disconnect(); });
 
 	// -- Define how to handle updateServer calls.
 	iotWebConf.setupUpdateServer(
@@ -105,9 +103,14 @@ void setup()
 		publisher.setup(mqttConfig);
 	}
 
-	server.on("/", []() { iotWebConf.handleConfig(); });
-	server.on("/reset", []() { needReset = true; });
-	server.onNotFound([]() { iotWebConf.handleNotFound(); });
+	server.on("/", []()
+			  { iotWebConf.handleConfig(); });
+	server.on("/reset", []()
+			  { needReset = true; });
+	server.on("/msg", []()
+			  { server.send(200, "application/json", publisher.jout); });
+	server.onNotFound([]()
+					  { iotWebConf.handleNotFound(); });
 
 	DEBUG("Setup done.");
 }
@@ -123,7 +126,8 @@ void loop()
 	}
 
 	// Execute sensor state machines
-	for (std::list<Sensor*>::iterator it = sensors->begin(); it != sensors->end(); ++it){
+	for (std::list<Sensor *>::iterator it = sensors->begin(); it != sensors->end(); ++it)
+	{
 		(*it)->loop();
 	}
 	iotWebConf.doLoop();
