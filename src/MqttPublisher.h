@@ -25,8 +25,6 @@
 #define MQTT_LWT_PAYLOAD_ONLINE "Online"
 #define MQTT_LWT_PAYLOAD_OFFLINE "Offline"
 
-using namespace std;
-
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org");
 

@@ -5,8 +5,6 @@
 #include <jled.h>
 #include "debug.h"
 
-using namespace std;
-
 // SML constants
 const byte START_SEQUENCE[] = {0x1B, 0x1B, 0x1B, 0x1B, 0x01, 0x01, 0x01, 0x01};
 const byte END_SEQUENCE[] = {0x1B, 0x1B, 0x1B, 0x1B, 0x1A};
@@ -55,7 +53,7 @@ public:
         this->config = config;
         DEBUG("Initializing sensor %s...", this->config->name);
         this->callback = callback;
-        this->serial = unique_ptr<SoftwareSerial>(new SoftwareSerial());
+        this->serial = std::unique_ptr<SoftwareSerial>(new SoftwareSerial());
         this->serial->begin(9600, SWSERIAL_8N1, this->config->pin, -1, false);
         this->serial->enableTx(false);
         this->serial->enableRx(true);
@@ -63,7 +61,7 @@ public:
 
         if (this->config->status_led_enabled)
         {
-            this->status_led = unique_ptr<JLed>(new JLed(this->config->status_led_pin));
+            this->status_led = std::unique_ptr<JLed>(new JLed(this->config->status_led_pin));
             if (this->config->status_led_inverted)
             {
                 this->status_led->LowActive();
@@ -85,7 +83,7 @@ public:
     }
 
 private:
-    unique_ptr<SoftwareSerial> serial;
+    std::unique_ptr<SoftwareSerial> serial;
     byte buffer[BUFFER_SIZE];
     size_t position = 0;
     unsigned long last_state_reset = 0;
@@ -94,7 +92,7 @@ private:
     uint8_t loop_counter = 0;
     State state = INIT;
     void (*callback)(byte *buffer, size_t len, Sensor *sensor) = NULL;
-    unique_ptr<JLed> status_led;
+    std::unique_ptr<JLed> status_led;
 
     void run_current_state()
     {
