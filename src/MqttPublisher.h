@@ -10,7 +10,7 @@
 #include <sml/sml_file.h>
 
 #include <NTPClient.h>
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <WiFiUdp.h>
 
 // #include <chrono>
@@ -213,7 +213,7 @@ private:
       this->reconnectTimer.detach();
       DEBUG(F("MQTT: Connection established."));
       char message[64];
-      snprintf(message, 64, "Hello from %08X, running SMLReader version %s.", ESP.getChipId(), VERSION);
+      snprintf(message, 64, "Hello from %08X, running SMLReader version %s.", ESP.getChipModel(), VERSION);
       info(message);
       publish(baseTopic + MQTT_LWT_TOPIC, MQTT_LWT_PAYLOAD_ONLINE, MQTT_LWT_QOS, MQTT_LWT_RETAIN);
     });

@@ -6,9 +6,9 @@
 #include <IotWebConf.h>
 #include "MqttPublisher.h"
 #include "EEPROM.h"
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
+#include <WiFi.h>
+#include <WebServer.h>
+#include <HTTPUpdateServer.h>
 
 std::list<Sensor *> *sensors = new std::list<Sensor *>();
 
@@ -17,7 +17,7 @@ void configSaved();
 
 DNSServer dnsServer;
 WebServer server(80);
-ESP8266HTTPUpdateServer httpUpdater;
+HTTPUpdateServer httpUpdater;
 WiFiClient net;
 
 MqttConfig mqttConfig;
@@ -82,8 +82,11 @@ void setup()
 	iotWebConf.setConfigSavedCallback(&configSaved);
 	iotWebConf.setWifiConnectionCallback(&wifiConnected);
 
-	WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected &event)
-								   { publisher.disconnect(); });
+	WiFi.onEvent([](WiFiEvent_t event, WiFiEventInfo_t info) {
+	if (event == SYSTEM_EVENT_STA_DISCONNECTED) {
+		publisher.disconnect();  // gleiche Funktion wie zuvor
+	}
+	});
 
 	// -- Define how to handle updateServer calls.
 	iotWebConf.setupUpdateServer(
